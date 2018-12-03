@@ -87,7 +87,7 @@ xElements.enter()
           .attr("x", function(d, i){
             return i * 30 + 10 + interval + offsetX
           })
-          .attr("y", svgHeight+15 -offsetY)
+          .attr("y", svgHeight+15 - offsetY)
           .text(function(d,i){
             return ["A","B","C","D","E"][i];
           })
