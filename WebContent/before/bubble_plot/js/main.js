@@ -8,7 +8,7 @@ var height = 500 - margin.top - margin.bottom,
     width = 800 - margin.left - margin.right;
 
 
-//this is g
+// here is 'g'
 var g = d3.select("#chart-area")
     .append("svg")
     .attr("width", width + margin.left + margin.right)
@@ -27,9 +27,19 @@ var colors = {
 };
 
 
-// 각 색깔이 어떤 continent 에 속하는지 실습 //
+// 이것 해보는것 실습
 
-
+var colorText = g.selectAll("text").data(d3.entries(colors))
+  colorText.enter()
+    .append("text")
+    .attr("class", "colors")
+    .attr("y", function(d,i){return height+40+ 15*i;})
+    .attr("x", width-40)
+    .attr("font-size", "20px")
+    .style("fill",function(d){return d.value;})
+    .style("opacity", "0.8")
+    .style("text-anchor", "middle")
+    .text(function(d){return d.key;});
 
 // Scales
 var x = d3.scaleLog()
@@ -42,7 +52,7 @@ var area = d3.scaleLinear()
     .range([25*Math.PI, 1500*Math.PI])
     .domain([2000, 1400000000]);
 
-// Labels
+// Labels : chart's label
 var xLabel = g.append("text")
     .attr("y", height + 50)
     .attr("x", width / 2)
@@ -67,10 +77,11 @@ var timeLabel = g.append("text")
     .text("1800");
 
 
-// X Axis
+// X Axis : al
 var xAxisCall = d3.axisBottom(x)
     .tickValues([400, 4000, 40000])
     .tickFormat(d3.format("$"));
+
 g.append("g")
     .attr("class", "x axis")
     .attr("transform", "translate(0," + height +")")
@@ -79,9 +90,11 @@ g.append("g")
 // Y Axis
 var yAxisCall = d3.axisLeft(y)
     .tickFormat(function(d){ return +d; });
+
 g.append("g")
     .attr("class", "y axis")
     .call(yAxisCall);
+
 
 
 d3.json("data/data_full.json", function(data){
@@ -90,12 +103,14 @@ d3.json("data/data_full.json", function(data){
     // Clean data
 
     const formattedData = data.map(function(year){
-        //console.log(year)
+        //console.log(year);
         return year["countries"].map(function(country){
+            //console.log(country);
             return country;
         })
     });
 
+    //console.log(formattedData);
     // Run the code every 0.1 second
     d3.interval(function(){
         // At the end of our data, loop back
@@ -110,10 +125,11 @@ d3.json("data/data_full.json", function(data){
 function update(data) {
     // Standard transition time for the visualization
     var t = d3.transition()
-        .duration(100)
+        .duration(100) // within 1 sec,
 
     // JOIN new data with old elements.
     var circles = g.selectAll("circle").data(data, function(d){
+      //  console.log(d);
         return d.country;
     });
 
@@ -123,7 +139,17 @@ function update(data) {
 
     // ENTER new elements present in new data.
     circles.enter()
+        .append("circle")
+        .attr("class", "enter")
+        .attr("fill", function(d) {return colors[d.continent]; })
+        .merge(circles)
+        .transition(t)
+            .attr("cy", function(d){ return y(d.life_exp); })
+            .attr("cx", function(d){ return x(d.income) })
+            .attr("r", function(d){ return Math.sqrt(area(d.population) / Math.PI) });
+
     // place to update //
+    // x, y, r 을 function 로 만 들 어 서...  적 용 예 정
     
     // Update the time label
     timeLabel.text(+(time + 1800))
